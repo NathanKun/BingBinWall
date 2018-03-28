@@ -1,5 +1,5 @@
 # BingBinWall
 Bing Bin Wall
 
-wheels to test  
-https://drive.google.com/open?id=1YLEmwg5T836pKFvPFdvg_oUMnmnPmM3D
+Using tensorflow1.6 nightly build wheel:
+http://ci.tensorflow.org/view/Nightly/job/nightly-pi-python3/166/artifact/output-artifacts/tensorflow-1.6.0-cp34-none-any.whl
