@@ -937,10 +937,10 @@ def takeTrackQuickPic(image, filename):
 
 #------------------------------------------------------------------------------
 def takeDayImage(filename, cam_sleep_time):
-	print("takeDayImage 1 : " + datetime.datetime.now().time());
+    print("takeDayImage 1 : " + datetime.datetime.now().time());
     """ Take a Day image using exp=auto and awb=auto """
     with picamera.PiCamera() as camera:
-		print("takeDayImage 2 : " + datetime.datetime.now().time());
+        print("takeDayImage 2 : " + datetime.datetime.now().time());
         camera.resolution = (imageWidth, imageHeight)
         camera.vflip = imageVFlip
         camera.hflip = imageHFlip
@@ -948,24 +948,24 @@ def takeDayImage(filename, cam_sleep_time):
         # Day Automatic Mode
         camera.exposure_mode = 'auto'
         camera.awb_mode = 'auto'
-		print("takeDayImage 3 : " + datetime.datetime.now().time());
+        print("takeDayImage 3 : " + datetime.datetime.now().time());
         time.sleep(cam_sleep_time) # use motion or TL camera sleep to get AWB
-		print("takeDayImage 4 : " + datetime.datetime.now().time());
+        print("takeDayImage 4 : " + datetime.datetime.now().time());
         if imagePreview:
             camera.start_preview()
-		print("takeDayImage 5 : " + datetime.datetime.now().time());
+        print("takeDayImage 5 : " + datetime.datetime.now().time());
         if imageFormat == ".jpg":   # Set quality if image is jpg
             camera.capture(filename, quality=imageJpegQuality)
         else:
             camera.capture(filename)
-		print("takeDayImage 6 : " + datetime.datetime.now().time());
+        print("takeDayImage 6 : " + datetime.datetime.now().time());
         camera.close()
     logging.info("camSleepSec=%.2f exp=auto awb=auto Size=%ix%i ",
                  cam_sleep_time, imageWidth, imageHeight)
     # showDateOnImage displays FilePath so avoid showing twice
     if not showDateOnImage:
         logging.info("FilePath  %s", filename)
-	print("takeDayImage 7 : " + datetime.datetime.now().time());
+    print("takeDayImage 7 : " + datetime.datetime.now().time());
 
 #------------------------------------------------------------------------------
 def getShut(pxAve):
@@ -1638,7 +1638,7 @@ def timolo():
                     checkMotionTimer = rightNow
                     forceMotion = True
                 if motionFound or forceMotion:
-					print("motionFound 1 : " + datetime.datetime.now().time());
+                    print("motionFound 1 : " + datetime.datetime.now().time());
                     imagePrefix = motionPrefix + imageNamePrefix
                     if motionTrackQuickPic:  # Do not stop PiVideoStream
                         filename = getImageName(moPath,
@@ -1654,7 +1654,7 @@ def timolo():
                                                              motionNumPath,
                                                              filename, daymode)
                     else:
-						print("motionFound 2 : " + datetime.datetime.now().time());
+                        print("motionFound 2 : " + datetime.datetime.now().time());
                         if motionTrackOn:
                             logging.info("Stop PiVideoStream ...")
                             vs.stop()
@@ -1697,15 +1697,15 @@ def timolo():
                                 takeVideo(filename, motionVideoTimer,
                                           motionVideoFPS)
                             else:
-								print("motionFound 3 : " + datetime.datetime.now().time());
+                                print("motionFound 3 : " + datetime.datetime.now().time());
                                 filename = getImageName(moPath,
                                                         imagePrefix,
                                                         motionNumOn,
                                                         motionNumCount)
                                 if daymode:
-									print("motionFound 4 : " + datetime.datetime.now().time());
+                                    print("motionFound 4 : " + datetime.datetime.now().time());
                                     takeDayImage(filename, motionCamSleep)
-									print("motionFound 5 : " + datetime.datetime.now().time());
+                                    print("motionFound 5 : " + datetime.datetime.now().time());
                                 else:
                                     takeNightImage(filename, pixAve)
                             motionNumCount = postImageProcessing(motionNumOn,
@@ -1749,7 +1749,7 @@ def timolo():
                         # Put your user code in userMotionCodeHere()
                         # function at top of this script
                         # ===========================================
-						print("motionFound 6 : " + datetime.datetime.now().time());
+                        print("motionFound 6 : " + datetime.datetime.now().time());
                         userMotionCodeHere()
                         dotCount = showDots(motionDotsMax)
                 else:
