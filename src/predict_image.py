@@ -78,4 +78,4 @@ def predict(image_path, frozen_model_path, label_mapping, input_name="input:0", 
     return label, results[top_index]
 
 
-print(predict(TEST_IMAGE_PATH, FROZEN_MODEL_PATH, INDEX_2_LABEL))  # expected output: ('cardboard', 0.8138799)
+# print(predict(TEST_IMAGE_PATH, FROZEN_MODEL_PATH, INDEX_2_LABEL))  # expected output: ('cardboard', 0.8138799)
