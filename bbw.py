@@ -25,7 +25,10 @@ ECHO = 26
 BEEP = 21
 
 # pi-camera
-IMAGESPATH = "../images/"
+IMAGES_DIR_PATH = "./images/"
+
+# log dir
+LOG_DIR_PATH = "./logs/"
 
 # tensorflow
 FROZEN_MODEL_PATH = './graph.pb'
@@ -113,7 +116,7 @@ def beepDistanceOk():
 def takePhoto(camera):
     log("Taking photo...")
     timeStr = '{0:%Y-%m-%d_%H:%M:%S.%f}'.format(datetime.datetime.now())[:-3]
-    file = IMAGESPATH + timeStr + '.jpg';
+    file = IMAGES_DIR_PATH + timeStr + '.jpg';
     
     camera.capture(file)
 
@@ -182,6 +185,7 @@ def predict(image_path, input_name="input:0", output_name="final_result:0"):
     label = INDEX_2_LABEL[top_index]
     
     log("Predict result: " + label + ": " + str(results[top_index]))
+    logPredict(image_path, label)
     return label
 
 def doResult(label):
@@ -194,14 +198,28 @@ def doResult(label):
 
 def log(logStr):
     timeStr = '{0:%Y-%m-%d_%H:%M:%S.%f}'.format(datetime.datetime.now())[:-3]
-    print(timeStr + ": " + logStr)
+    logStr = timeStr + ": " + logStr
+    
+    print(logStr)
+    with open(LOG_DIR_PATH + 'bbw.log', 'a') as f:
+        f.write(logStr + '\n')
+
+def logPredict(file, label):
+    timeStr = '{0:%Y-%m-%d_%H:%M:%S.%f}'.format(datetime.datetime.now())[:-3]
+    with open(LOG_DIR_PATH + 'predict.log', 'a') as f:
+        f.write(timeStr + '\t' + file + '\t' + label + '\n')
 
 if __name__ == '__main__':
+    import os
     import datetime
+
+    # check if log folder exists
+    if not os.path.exists(LOG_DIR_PATH):
+        os.mkdir(LOG_DIR_PATH)
+        
     log("Bing Bin Wall Starting...")
     
     # import modules
-    import os
     import time
     import numpy as np
     import _thread
@@ -227,8 +245,8 @@ if __name__ == '__main__':
     GPIO.output(BLUE, True)
 
     # check if image dir exists
-    if not os.path.exists(IMAGESPATH):
-        os.mkdir(IMAGESPATH)
+    if not os.path.exists(IMAGES_DIR_PATH):
+        os.mkdir(IMAGES_DIR_PATH)
 
     # init camera
     camera = picamera.PiCamera()
