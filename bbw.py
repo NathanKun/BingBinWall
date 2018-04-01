@@ -185,7 +185,7 @@ def predict(image_path, input_name="input:0", output_name="final_result:0"):
     label = INDEX_2_LABEL[top_index]
     
     log("Predict result: " + label + ": " + str(results[top_index]))
-    logPredict(image_path, label)
+    logPredict(image_path, label, str(results[top_index]))
     return label
 
 def doResult(label):
@@ -204,10 +204,10 @@ def log(logStr):
     with open(LOG_DIR_PATH + 'bbw.log', 'a') as f:
         f.write(logStr + '\n')
 
-def logPredict(file, label):
+def logPredict(file, label, percentage):
     timeStr = '{0:%Y-%m-%d_%H:%M:%S.%f}'.format(datetime.datetime.now())[:-3]
     with open(LOG_DIR_PATH + 'predict.log', 'a') as f:
-        f.write(timeStr + '\t' + file + '\t' + label + '\n')
+        f.write(timeStr + '\t' + file + '\t' + label + '\t' + percentage + '\n')
 
 if __name__ == '__main__':
     import os
@@ -264,6 +264,7 @@ if __name__ == '__main__':
             elif (distance <= 70 and distance >=30):
                 log("Object found, working...")
                 _thread.start_new_thread(beepDistanceOk, ())
+				time.sleep(0.5)
                 doResult(predict(takePhoto(camera)))
                 log("Finished")
             # else distance > 70 : do nothing
