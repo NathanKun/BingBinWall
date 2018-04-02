@@ -272,8 +272,8 @@ if __name__ == '__main__':
 				# beep
                 _thread.start_new_thread(beepDistanceOk, ())
 				# white light
-                _thread.start_new_thread(blinkWhite(), ())
-				time.sleep(0.5)
+                _thread.start_new_thread(blinkWhite, ())
+                time.sleep(0.5)
                 doResult(predict(takePhoto(camera)))
                 log("Finished")
             # else distance > 70 : do nothing
