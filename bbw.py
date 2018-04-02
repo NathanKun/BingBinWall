@@ -25,13 +25,13 @@ ECHO = 26
 BEEP = 21
 
 # pi-camera
-IMAGES_DIR_PATH = "./images/"
+IMAGES_DIR_PATH = '/home/pi/BingBinWall/images/'
 
 # log dir
-LOG_DIR_PATH = "./logs/"
+LOG_DIR_PATH = '/home/pi/BingBinWall/logs/'
 
 # tensorflow
-FROZEN_MODEL_PATH = './graph.pb'
+FROZEN_MODEL_PATH = '/home/pi/BingBinWall/graph.pb'
 INPUT_SIZE = 224
 INDEX_2_LABEL = {
     0 : 'cardboard',
@@ -251,6 +251,9 @@ if __name__ == '__main__':
     # init camera
     camera = picamera.PiCamera()
     camera.resolution = (640, 480)
+
+    # indicate initialized successfully
+    blinkGreen()
 
     # main loop
     log("Main loop start")
