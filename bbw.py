@@ -25,13 +25,13 @@ ECHO = 26
 BEEP = 21
 
 # pi-camera
-IMAGES_DIR_PATH = "./images/"
+IMAGES_DIR_PATH = '/home/pi/BingBinWall/images/'
 
 # log dir
-LOG_DIR_PATH = "./logs/"
+LOG_DIR_PATH = '/home/pi/BingBinWall/logs/'
 
 # tensorflow
-FROZEN_MODEL_PATH = './graph.pb'
+FROZEN_MODEL_PATH = '/home/pi/BingBinWall/graph.pb'
 INPUT_SIZE = 224
 INDEX_2_LABEL = {
     0 : 'cardboard',
@@ -255,6 +255,9 @@ if __name__ == '__main__':
     camera = picamera.PiCamera()
     camera.resolution = (640, 480)
 
+    # indicate initialized successfully
+    blinkGreen()
+
     # main loop
     log("Main loop start")
     run = True
@@ -269,8 +272,8 @@ if __name__ == '__main__':
 				# beep
                 _thread.start_new_thread(beepDistanceOk, ())
 				# white light
-                _thread.start_new_thread(blinkWhite(), ())
-				time.sleep(0.5)
+                _thread.start_new_thread(blinkWhite, ())
+                time.sleep(0.5)
                 doResult(predict(takePhoto(camera)))
                 log("Finished")
             # else distance > 70 : do nothing
