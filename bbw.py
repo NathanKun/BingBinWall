@@ -274,6 +274,7 @@ if __name__ == '__main__':
                 doResult(predict(takePhoto(camera)))
                 log("Finished")
             # else distance > 70 : do nothing
+            time.sleep(0.5)
                 
         except KeyboardInterrupt:
             # clean up gpio
