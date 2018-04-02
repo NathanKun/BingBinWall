@@ -66,6 +66,9 @@ def blinkBlue():
 def blinkYellow():
     blink(RED, GREEN)
 
+def blinkWhite():
+    blink(RED, GREEN, BLUE, 2)
+
 # predict rgb indication
 LABEL_TO_DORGB = {
     'cardboard' : blinkBlue,
@@ -263,7 +266,10 @@ if __name__ == '__main__':
                 beepTooClose()
             elif (distance <= 70 and distance >=30):
                 log("Object found, working...")
+				# beep
                 _thread.start_new_thread(beepDistanceOk, ())
+				# white light
+                _thread.start_new_thread(blinkWhite(), ())
 				time.sleep(0.5)
                 doResult(predict(takePhoto(camera)))
                 log("Finished")
