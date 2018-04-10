@@ -199,9 +199,11 @@ def doResult(label):
         LABEL_TO_DORGB['other']()
     
 
-def log(logStr):
-    timeStr = '{0:%Y-%m-%d_%H:%M:%S.%f}'.format(datetime.datetime.now())[:-3]
-    logStr = timeStr + ": " + logStr
+def log(logStr, withTime = True):
+    timeStr = ''
+    if withTime:
+        timeStr = '{0:%Y-%m-%d_%H:%M:%S.%f}'.format(datetime.datetime.now())[:-3] + ": "
+    logStr = timeStr + logStr
     
     print(logStr)
     with open(LOG_DIR_PATH + 'bbw.log', 'a') as f:
@@ -212,9 +214,34 @@ def logPredict(file, label, percentage):
     with open(LOG_DIR_PATH + 'predict.log', 'a') as f:
         f.write(timeStr + '\t' + file + '\t' + label + '\t' + percentage + '\n')
 
+def my_except_hook(exctype, value, traceback):
+    if exctype == KeyboardInterrupt:
+        # clean up gpio
+        print("")
+        log("Exiting...")
+        run = False
+        GPIO.cleanup()
+        log("Bye")
+    else:
+        log("Exception", withTime = False)
+        log("exctype:", withTime = False)
+        log(str(exctype), withTime = False)
+        log("value:", withTime = False)
+        log(str(value), withTime = False)
+        log("traceback:", withTime = False)
+        tbList = tb.format_tb(traceback, 100)
+        for i in tbList:
+            log(i, withTime = False) # limit = 100
+            
+        sys.__excepthook__(exctype, value, traceback)
+
 if __name__ == '__main__':
     import os
+    import sys
+    import traceback as tb
     import datetime
+
+    sys.excepthook = my_except_hook
 
     # check if log folder exists
     if not os.path.exists(LOG_DIR_PATH):
@@ -262,28 +289,19 @@ if __name__ == '__main__':
     log("Main loop start")
     run = True
     while run:
-        try:
-            # mesure distance
-            distance = mesureDistance()
-            if(distance < 30):
-                beepTooClose()
-            elif (distance <= 70 and distance >=30):
-                log("Object found, working...")
-				# beep
-                _thread.start_new_thread(beepDistanceOk, ())
-				# white light
-                _thread.start_new_thread(blinkWhite, ())
-                time.sleep(0.5)
-                doResult(predict(takePhoto(camera)))
-                log("Finished")
-            # else distance > 70 : do nothing
+        # mesure distance
+        distance = mesureDistance()
+        if(distance < 30):
+            beepTooClose()
+        elif (distance <= 70 and distance >=30):
+            log("Object found, working...")
+	    # beep
+            _thread.start_new_thread(beepDistanceOk, ())
+	    # white light
+            _thread.start_new_thread(blinkWhite, ())
             time.sleep(0.5)
-                
-        except KeyboardInterrupt:
-            # clean up gpio
-            print("")
-            log("Exiting...")
-            run = False
-            GPIO.cleanup()
-            log("Bye")
+            doResult(predict(takePhoto(camera)))
+            log("Finished")
+        # else distance > 70 : do nothing
+        time.sleep(0.5)
     # main loop end
