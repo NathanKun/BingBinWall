@@ -13,13 +13,23 @@ __email__ = "nathanhejunyang@gmail.com"
 
 
 # rgb led
-RED   = 2
-GREEN = 3
-BLUE  = 4
+RED   = 17
+GREEN = 27
+BLUE  = 22
 
 # ultrasound distance sensor
-TRIG = 19
-ECHO = 26
+#TRIG = 19
+#ECHO = 26
+
+# ToF distance sensor
+VL53L0X_REG_IDENTIFICATION_MODEL_ID		= 0x00c0
+VL53L0X_REG_IDENTIFICATION_REVISION_ID		= 0x00c2
+VL53L0X_REG_PRE_RANGE_CONFIG_VCSEL_PERIOD	= 0x0050
+VL53L0X_REG_FINAL_RANGE_CONFIG_VCSEL_PERIOD	= 0x0070
+VL53L0X_REG_SYSRANGE_START			= 0x000
+VL53L0X_REG_RESULT_INTERRUPT_STATUS 		= 0x0013
+VL53L0X_REG_RESULT_RANGE_STATUS 		= 0x0014
+address = 0x29
 
 # beeper
 BEEP = 21
@@ -81,7 +91,7 @@ LABEL_TO_DORGB = {
 
 
 ### ultrasound ###
-def mesureDistance():
+'''def mesureDistance():
     # mesure distance in cm
     GPIO.output(TRIG, True)
     time.sleep(0.00001)
@@ -98,6 +108,49 @@ def mesureDistance():
     distance = round(distance, 2)
 
     return distance
+'''
+
+
+### ToF ###
+def bswap(val):
+    return struct.unpack('<H', struct.pack('>H', val))[0]
+
+def mread_word_data(adr, reg):
+    return bswap(bus.read_word_data(adr, reg))
+
+def mwrite_word_data(adr, reg, data):
+    return bus.write_word_data(adr, reg, bswap(data))
+
+def makeuint16(lsb, msb):
+    return ((msb & 0xFF) << 8)  | (lsb & 0xFF)
+
+def VL53L0X_decode_vcsel_period(vcsel_period_reg):
+# Converts the encoded VCSEL period register value into the real
+# period in PLL clocks
+    vcsel_period_pclks = (vcsel_period_reg + 1) << 1;
+    return vcsel_period_pclks;
+
+def mesureDistance():
+    mesureOK = False
+
+    while not mesureOK:
+        val1 = bus.write_byte_data(address, VL53L0X_REG_SYSRANGE_START, 0x01)
+
+        cnt = 0
+        while (cnt < 100): # 1 second waiting time max
+                time.sleep(0.010)
+                val = bus.read_byte_data(address, VL53L0X_REG_RESULT_RANGE_STATUS)
+                if (val & 0x01):
+                        break
+                cnt += 1
+
+        if (val & 0x01):
+            data = bus.read_i2c_block_data(address, 0x14, 12)
+            distance = makeuint16(data[11], data[10])
+            if (distance > 50 and distance < 1000):
+                mesureOK = True
+
+    return distance / 10 # mm to cm
 
 
 ### beeper ###
@@ -124,6 +177,7 @@ def takePhoto(camera):
     camera.capture(file)
 
     return file
+
 
 ### Tensorflow ###
 def read_tensor_from_image_file(file_name, input_height=299, input_width=299,
@@ -191,6 +245,8 @@ def predict(image_path, input_name="input:0", output_name="final_result:0"):
     logPredict(image_path, label, str(results[top_index]))
     return label
 
+
+### Bing Bin Wall ###
 def doResult(label):
     log("Responsing...")
     if label in LABEL_TO_DORGB:
@@ -263,6 +319,8 @@ if __name__ == '__main__':
     import RPi.GPIO as GPIO
     import picamera
     import tensorflow as tf
+    import smbus2 as smbus
+    import struct
 
     # init gpio
     GPIO.setmode(GPIO.BCM)
@@ -270,9 +328,9 @@ if __name__ == '__main__':
     GPIO.setup(BEEP,GPIO.OUT)
     GPIO.output(BEEP, False)
 
-    GPIO.setup(TRIG,GPIO.OUT)
-    GPIO.setup(ECHO,GPIO.IN)
-    GPIO.output(TRIG, False)
+    #GPIO.setup(TRIG,GPIO.OUT)
+    #GPIO.setup(ECHO,GPIO.IN)
+    #GPIO.output(TRIG, False)
 
     GPIO.setup(RED, GPIO.OUT)
     GPIO.setup(GREEN, GPIO.OUT)
@@ -280,6 +338,9 @@ if __name__ == '__main__':
     GPIO.output(RED, True)
     GPIO.output(GREEN, True)
     GPIO.output(BLUE, True)
+
+    # init i2c
+    bus = smbus.SMBus(1)
 
     # check if image dir exists
     if not os.path.exists(IMAGES_DIR_PATH):
