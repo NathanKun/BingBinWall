@@ -214,15 +214,20 @@ def logPredict(file, label, percentage):
     with open(LOG_DIR_PATH + 'predict.log', 'a') as f:
         f.write(timeStr + '\t' + file + '\t' + label + '\t' + percentage + '\n')
 
+def quitGracefully(*args):
+    # clean up gpio
+    print("")
+    log("Exiting...")
+    run = False
+    GPIO.cleanup()
+    log("Bye")
+    exit(0)
+
 def my_except_hook(exctype, value, traceback):
     if exctype == KeyboardInterrupt:
-        # clean up gpio
-        print("")
-        log("Exiting...")
-        run = False
-        GPIO.cleanup()
-        log("Bye")
+        quitGracefully()
     else:
+        GPIO.cleanup()
         log("Exception", withTime = False)
         log("exctype:", withTime = False)
         log(str(exctype), withTime = False)
@@ -234,14 +239,16 @@ def my_except_hook(exctype, value, traceback):
             log(i, withTime = False) # limit = 100
             
         sys.__excepthook__(exctype, value, traceback)
-
+        
 if __name__ == '__main__':
     import os
     import sys
     import traceback as tb
     import datetime
+    import signal
 
     sys.excepthook = my_except_hook
+    signal.signal(signal.SIGINT, quitGracefully)
 
     # check if log folder exists
     if not os.path.exists(LOG_DIR_PATH):
